@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="1" author="vandreev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="authorities" schemaName="public"/>
+                <indexExists indexName="idx_authority" schemaName="public"/>
+                <sequenceExists sequenceName="authorities_seg" schemaName="public"/>
+            </not>
+        </preConditions>
+
+        <createSequence sequenceName="authorities_seg" schemaName="public"
+                        incrementBy="1" startValue="3" cycle="false"/>
+
+        <createTable tableName="authorities" schemaName="public">
+            <column name="version" type="int" remarks="Entity version"/>
+            <column name="id" type="int" defaultValueSequenceNext="authorities_seg" remarks="Entity ID">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="created_at" type="datetime" remarks="Entity created time"/>
+            <column name="updated_at" type="datetime" remarks="Entity updated time"/>
+            <column name="authority" type="varchar(30)" remarks="User authority">
+                <constraints unique="true" nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="authorities" indexName="idx_authority">
+            <column name="authority"/>
+        </createIndex>
+
+        <insert tableName="authorities" schemaName="public">
+            <column name="id" value="0"/>
+            <column name="version" value="0"/>
+            <column name="created_at" value="now()"/>
+            <column name="updated_at" value="now()"/>
+            <column name="authority" value="ADMIN"/>
+        </insert>
+
+        <insert tableName="authorities" schemaName="public">
+            <column name="id" value="1"/>
+            <column name="version" value="0"/>
+            <column name="created_at" value="now()"/>
+            <column name="updated_at" value="now()"/>
+            <column name="authority" value="ZABBIX"/>
+        </insert>
+
+        <insert tableName="authorities" schemaName="public">
+            <column name="id" value="2"/>
+            <column name="version" value="0"/>
+            <column name="created_at" value="now()"/>
+            <column name="updated_at" value="now()"/>
+            <column name="authority" value="USER"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="2" author="vandreev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="users" schemaName="public"/>
+                <indexExists indexName="idx_username" schemaName="public"/>
+                <sequenceExists sequenceName="user_seg" schemaName="public"/>
+            </not>
+        </preConditions>
+
+        <createSequence sequenceName="user_seg" schemaName="public"
+                        incrementBy="1" startValue="3" cycle="false"/>
+
+        <createTable tableName="users" schemaName="public">
+            <column name="version" type="int" remarks="Entity version"/>
+            <column name="id" type="int" defaultValueSequenceNext="user_seg" remarks="Entity ID">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="created_at" type="datetime" remarks="Entity created time"/>
+            <column name="updated_at" type="datetime" remarks="Entity updated time"/>
+            <column name="username" type="varchar(30)" remarks="User login">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="password" type="varchar(100)" remarks="User password">
+                <constraints nullable="false"/>
+            </column>
+            <column name="telegram_id" type="int" remarks="User telegram ID"/>
+        </createTable>
+
+        <createIndex tableName="users" indexName="idx_username">
+            <column name="username"/>
+        </createIndex>
+
+        <insert tableName="users" schemaName="public">
+            <column name="id" value="0"/>
+            <column name="version" value="0"/>
+            <column name="created_at" value="now()"/>
+            <column name="updated_at" value="now()"/>
+            <column name="username" value="admin"/>
+            <column name="password" value="$2y$13$ZTqfo3YYoPqiuqGNiJAwoe5321FzF0v14kfUByF4vs440sb.5X1ye"/>
+        </insert>
+
+        <insert tableName="users" schemaName="public">
+            <column name="id" value="1"/>
+            <column name="version" value="0"/>
+            <column name="created_at" value="now()"/>
+            <column name="updated_at" value="now()"/>
+            <column name="username" value="zabbix"/>
+            <column name="password" value="$2y$13$fdUX9ImQG8eTAtsafZx1secC1NquA7MHO5wKmI50glI.gxXjoq0m2"/>
+        </insert>
+
+        <insert tableName="users" schemaName="public">
+            <column name="id" value="2"/>
+            <column name="version" value="0"/>
+            <column name="created_at" value="now()"/>
+            <column name="updated_at" value="now()"/>
+            <column name="username" value="user"/>
+            <column name="password" value="$2y$13$xWK7jLGuMNc93g4V369lKesvHXLqY0/WtIkwfhm.RH4.6JVe35SgK"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="3" author="vandreev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="users_authorities" schemaName="public"/>
+                <primaryKeyExists primaryKeyName="pk_users_authorities" schemaName="public"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="users_authorities">
+            <column name="user_id" type="int">
+                <constraints nullable="false" referencedTableName="users" referencedColumnNames="id"
+                             foreignKeyName="FK_USER_ID_ON_USER_AUTHORITIES"/>
+            </column>
+            <column name="authorities_id" type="int">
+                <constraints nullable="false" referencedTableName="authorities" referencedColumnNames="id"
+                             foreignKeyName="FK_AUTHORITY_ID_ON_USER_AUTHORITIES"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="users_authorities" columnNames="user_id,authorities_id"
+                       constraintName="pk_users_authorities"/>
+
+        <insert tableName="users_authorities" schemaName="public">
+            <column name="user_id" value="0"/>
+            <column name="authorities_id" value="0"/>
+        </insert>
+
+        <insert tableName="users_authorities" schemaName="public">
+            <column name="user_id" value="1"/>
+            <column name="authorities_id" value="1"/>
+        </insert>
+
+        <insert tableName="users_authorities" schemaName="public">
+            <column name="user_id" value="2"/>
+            <column name="authorities_id" value="2"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
