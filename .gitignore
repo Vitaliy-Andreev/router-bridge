@@ -11,6 +11,7 @@
 *.zip
 *.tar.gz
 *.rar
+*.properties
 
 HELP.md
 target/

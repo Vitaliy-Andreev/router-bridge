@@ -1,1 +1,71 @@
-spring.application.name=Router bridge GEN II
+info:
+  application:
+    name: '@project.name@'
+    description: '@project.description@'
+    version: '@project.version@'
+    profile: ${spring.profiles.active}
+
+spring:
+  retry:
+    maxAttempts: 2
+    maxDelay: ${SPRING_RETRY_MAX_DELAY:2000}
+  profiles.active: ${SPRING_PROFILE_ACTIVE:develop}
+  lifecycle.timeout-per-shutdown-phase: ${TIMEOUT_PER_SHUTDOWN:5s}
+  cache.type: caffeine
+  jta.enabled: false
+  liquibase.change-log: classpath:db/changelog/master.xml
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/bridgedb}
+    username: ${DATASOURCE_USERNAME:postgres}
+    password: ${DATASOURCE_PASSWORD:postgres}
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 10
+      idle-timeout: 60_000
+  jpa:
+    open-in-view: off
+    show-sql: false
+    hibernate.ddl-auto: validate
+  boot.admin.client.enabled: ${SPRING_BOOT_ADMIN_ENABLED:false}
+
+management:
+  info.env.enabled: true
+  endpoints.web:
+    base-path: /metrics
+    exposure.include: info, health, prometheus
+  endpoint.health:
+    show-details: when_authorized
+    show-components: when_authorized
+
+logging:
+  file.name: ${LOGGING_FILE_NAME:router-bridge.log}
+  pattern.dateformat: YYYY-MM-dd HH:mm:ss
+  level:
+    root: info
+    org.apache.sshd: off
+    ru.krsmon: ${LOGGING_LEVEL_RU_KRSMON:info}
+  logback.rollingpolicy:
+    max-history: 5
+    max-file-size: 5MB
+
+server:
+  port: ${SERVER_PORT:8080}
+  http2.enabled: true
+  shutdown: graceful
+  servlet.context-path: /api
+  ssl:
+    enabled: ${SSL_ENABLED:false}
+    key-store-password: ${KEYSTORE_PASSWORD:stub}
+    key-store: ${KEYSTORE_PATH:stub}
+    key-store-type: PKCS12
+    key-alias: ${KEY_ALIAS:stub}
+    protocol: TLSv1.3
+    key-password: ${KEY_PASSWORD:stub}
+  tomcat:
+    accesslog.enabled: false
+    connection-timeout: 50
+    accept-count: 500
+    max-connections: 500
+    threads.max: 800
+    uri-encoding: UTF-8
